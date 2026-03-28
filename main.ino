@@ -1,4 +1,4 @@
-// IR Sensors
+// IR Sensor Pins
 int leftIR = 2;
 int centerIR = 3;
 int rightIR = 4;
@@ -9,29 +9,15 @@ int IN2 = A1;
 int IN3 = A2;
 int IN4 = A3;
 
-// Enable Pins (IMPORTANT)
-int ENA = 9;
-int ENB = 10;
-
 void setup() {
-  // IR Sensors
   pinMode(leftIR, INPUT);
   pinMode(centerIR, INPUT);
   pinMode(rightIR, INPUT);
 
-  // Motor Pins
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-
-  // Enable Pins
-  pinMode(ENA, OUTPUT);
-  pinMode(ENB, OUTPUT);
-
-  // Enable motors at full speed
-  analogWrite(ENA, 255);
-  analogWrite(ENB, 255);
 }
 
 void loop() {
@@ -54,7 +40,7 @@ void loop() {
     leftTurn();
   }
 
-  // All sensors on black (junction)
+  // All sensors on black (junction or thick line)
   else if (left == LOW && center == LOW && right == LOW) {
     forward();
   }
