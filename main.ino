@@ -1,83 +1,96 @@
-// ----------- SENSOR CONNECTIONS -------------
-#define leftSensor  34   // LEFT IR Sensor OUT
-#define rightSensor 35   // RIGHT IR Sensor OUT
+// IR Sensors
+int leftIR = 2;
+int centerIR = 3;
+int rightIR = 4;
 
-// ----------- MOTOR CONNECTIONS -------------
-// LEFT MOTOR (connected to OUT3 & OUT4)
-#define IN3  14    // L298N IN3 → ESP32 D14 (Left motor direction 1)
-#define IN4  12    // L298N IN4 → ESP32 D12 (Left motor direction 2)
+// Motor Driver Pins
+int IN1 = A0;
+int IN2 = A1;
+int IN3 = A2;
+int IN4 = A3;
 
-// RIGHT MOTOR (connected to OUT1 & OUT2)
-#define IN1  26    // L298N IN1 → ESP32 D26 (Right motor direction 1)
-#define IN2  27    // L298N IN2 → ESP32 D27 (Right motor direction 2)
+// Enable Pins (IMPORTANT)
+int ENA = 9;
+int ENB = 10;
 
-#define ENA  33
-#define ENB  32 
 void setup() {
+  // IR Sensors
+  pinMode(leftIR, INPUT);
+  pinMode(centerIR, INPUT);
+  pinMode(rightIR, INPUT);
 
-  pinMode(leftSensor, INPUT);
-  pinMode(rightSensor, INPUT);
-  pinMode(ENA, OUTPUT);
+  // Motor Pins
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
-  pinMode(ENB, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
+  // Enable Pins
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  // Enable motors at full speed
+  analogWrite(ENA, 255);
+  analogWrite(ENB, 255);
 }
 
 void loop() {
+  int left = digitalRead(leftIR);
+  int center = digitalRead(centerIR);
+  int right = digitalRead(rightIR);
 
-  int leftStatus  = digitalRead(leftSensor);
-  int rightStatus = digitalRead(rightSensor);
+  // Move Forward (on line)
+  if (left == HIGH && center == LOW && right == HIGH) {
+    forward();
+  }
 
-  if (leftStatus == HIGH && rightStatus == HIGH) {
-    moveForward();
+  // Turn Right
+  else if (left == HIGH && center == HIGH && right == LOW) {
+    rightTurn();
   }
-  else if (leftStatus == HIGH && rightStatus == LOW) {
-    turnLeft();
+
+  // Turn Left
+  else if (left == LOW && center == HIGH && right == HIGH) {
+    leftTurn();
   }
-  else if (leftStatus == LOW && rightStatus == HIGH) {
-    turnRight();
+
+  // All sensors on black (junction)
+  else if (left == LOW && center == LOW && right == LOW) {
+    forward();
   }
+
+  // Lost line
   else {
     stopMotors();
   }
 }
 
-// ----------- MOVEMENT FUNCTIONS ----------------
+// FUNCTIONS
 
-void moveForward() {
+void forward() {
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
-  analogWrite(ENA, 45);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  analogWrite(ENB, 45);
 }
 
-void turnLeft() {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  analogWrite(ENA, 60);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  analogWrite(ENB, 50);
-}
-void turnRight() {
+void leftTurn() {
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
-  analogWrite(ENA, 65);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  analogWrite(ENB, 70);
+}
+
+void rightTurn() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 }
 
 void stopMotors() {
   digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  analogWrite(ENA, 60);
+  digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  analogWrite(ENB, 40);
+  digitalWrite(IN4, LOW);
 }
